@@ -1,0 +1,28 @@
+{
+    "name": "codememory/query-builder",
+    "description": "query builder",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Danil",
+            "email": "kostynd1@gmail.com"
+        }
+    ],
+    "require": {
+        "ext-pdo": "*",
+        "codememory/database-connection": "^1.0",
+        "codememory/database-schema": "^2.0",
+        "codememory/sql-data": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Codememory\\Components\\Database\\QueryBuilder\\": ""
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "require-dev": {
+        "symfony/var-dumper": "^5.3"
+    }
+}

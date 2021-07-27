@@ -163,8 +163,8 @@ interface QueryBuilderInterface
     public function execute(): void;
 
     /**
-     * @return QueryInterface
+     * @return QueryResultInterface
      */
-    public function getResult(): QueryInterface;
+    public function getResult(): QueryResultInterface;
 
 }

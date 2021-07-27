@@ -10,6 +10,7 @@ use Codememory\Components\Database\QueryBuilder\Exceptions\NotSelectedStatementE
 use Codememory\Components\Database\QueryBuilder\Exceptions\QueryNotGeneratedException;
 use Codememory\Components\Database\QueryBuilder\Interfaces\QueryBuilderInterface;
 use Codememory\Components\Database\QueryBuilder\Interfaces\QueryInterface;
+use Codememory\Components\Database\QueryBuilder\Interfaces\QueryResultInterface;
 use Codememory\Components\Database\QueryBuilder\Interfaces\StatementsInterface;
 use Codememory\Components\Database\Schema\Interfaces\DeleteInterface;
 use Codememory\Components\Database\Schema\Interfaces\ExpressionInterface;
@@ -365,7 +366,7 @@ class QueryBuilder implements QueryBuilderInterface
      * @inheritDoc
      * @throws QueryNotGeneratedException
      */
-    public function getResult(): QueryInterface
+    public function getResult(): QueryResultInterface
     {
 
         if (null === $this->query) {

@@ -96,6 +96,14 @@ interface QueryBuilderInterface
     public function joinSpecification(): JoinSpecificationInterface;
 
     /**
+     * @param string|array $column
+     * @param string|array $withColumn
+     *
+     * @return string
+     */
+    public function joinComparison(string|array $column, string|array $withColumn): string;
+
+    /**
      * @return ExpressionInterface
      */
     public function expression(): ExpressionInterface;
@@ -166,5 +174,10 @@ interface QueryBuilderInterface
      * @return QueryResultInterface
      */
     public function getResult(): QueryResultInterface;
+
+    /**
+     * @return QueryResultInterface
+     */
+    public function generateResult(): QueryResultInterface;
 
 }

@@ -9,7 +9,6 @@ use Codememory\Components\Database\Connection\Interfaces\ConnectorInterface;
 use Codememory\Components\Database\QueryBuilder\Exceptions\NotSelectedStatementException;
 use Codememory\Components\Database\QueryBuilder\Exceptions\QueryNotGeneratedException;
 use Codememory\Components\Database\QueryBuilder\Interfaces\QueryBuilderInterface;
-use Codememory\Components\Database\QueryBuilder\Interfaces\QueryInterface;
 use Codememory\Components\Database\QueryBuilder\Interfaces\QueryResultInterface;
 use Codememory\Components\Database\QueryBuilder\Interfaces\StatementsInterface;
 use Codememory\Components\Database\Schema\Interfaces\DeleteInterface;
@@ -231,6 +230,26 @@ class QueryBuilder implements QueryBuilderInterface
     /**
      * @inheritDoc
      */
+    public function joinComparison(string|array $column, string|array $withColumn): string
+    {
+
+        $conditions = [];
+        $column = is_string($column) ? [$column] : $column;
+        $withColumn = is_string($withColumn) ? [$withColumn] : $withColumn;
+
+        foreach ($column as $index => $firstColumn) {
+            $conditions[] = $this->expression()->condition($firstColumn, '=', $withColumn[$index] ?? $firstColumn);
+        }
+
+        return $this->joinSpecification()->on(
+            $this->expression()->exprAnd(...$conditions)
+        );
+
+    }
+
+    /**
+     * @inheritDoc
+     */
     #[Pure]
     public function expression(): ExpressionInterface
     {
@@ -374,6 +393,17 @@ class QueryBuilder implements QueryBuilderInterface
         }
 
         return new Query($this->connector, $this->query, $this->parameters);
+
+    }
+
+    /**
+     * @inheritDoc
+     * @throws NotSelectedStatementException
+     */
+    public function generateResult(): QueryResultInterface
+    {
+
+        return $this->generateQuery()->getResult();
 
     }
 

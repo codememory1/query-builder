@@ -34,9 +34,9 @@ class QueryBuilder
     protected ConnectorInterface $connector;
 
     /**
-     * @var object
+     * @var string
      */
-    protected object $qbCreator;
+    protected string $qbCreator;
 
     /**
      * @var Executor
@@ -80,10 +80,10 @@ class QueryBuilder
 
     /**
      * @param ConnectorInterface $connector
-     * @param object             $queryBuilderCreator
+     * @param string             $queryBuilderCreator
      */
     #[Pure]
-    public function __construct(ConnectorInterface $connector, object $queryBuilderCreator)
+    public function __construct(ConnectorInterface $connector, string $queryBuilderCreator)
     {
 
         $this->connector = $connector;

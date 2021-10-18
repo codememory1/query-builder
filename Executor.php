@@ -28,15 +28,15 @@ class Executor implements ExecutorInterface
     private ConnectorInterface $connector;
 
     /**
-     * @var object
+     * @var string
      */
-    private object $queryBuilderCreator;
+    private string $queryBuilderCreator;
 
     /**
      * @param ConnectorInterface $connector
-     * @param object             $queryBuilderCreator
+     * @param string             $queryBuilderCreator
      */
-    public function __construct(ConnectorInterface $connector, object $queryBuilderCreator)
+    public function __construct(ConnectorInterface $connector, string $queryBuilderCreator)
     {
 
         $this->connector = $connector;
@@ -82,7 +82,7 @@ class Executor implements ExecutorInterface
             $databaseReportCreator = new DatabaseReportCreator($currentRoute, new DatabaseSection(new Resource()));
 
             $databaseBuilder
-                ->setRepository($this->queryBuilderCreator::class)
+                ->setRepository($this->queryBuilderCreator)
                 ->setConnector($this->connector->getConnectorName())
                 ->setQuery($query)
                 ->setDuration($duration);

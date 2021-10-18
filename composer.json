@@ -11,8 +11,11 @@
     "require": {
         "ext-pdo": "*",
         "codememory/database-connection": "^1.0",
-        "codememory/database-schema": "^2.0",
-        "codememory/sql-data": "^1.0"
+        "codememory/database-schema": "^2.0.1",
+        "codememory/profiling": "^2.2",
+        "codememory/routing": "^1.4",
+        "codememory/sql-data": "^1.0",
+        "codememory/support": "^1.2"
     },
     "autoload": {
         "psr-4": {

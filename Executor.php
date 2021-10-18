@@ -3,6 +3,7 @@
 namespace Codememory\Components\Database\QueryBuilder;
 
 use Codememory\Components\Database\Connection\Interfaces\ConnectorInterface;
+use Codememory\Components\Database\QueryBuilder\Interfaces\ExecutorInterface;
 use Codememory\Components\Profiling\Exceptions\BuilderNotCurrentSectionException;
 use Codememory\Components\Profiling\ReportCreators\DatabaseReportCreator;
 use Codememory\Components\Profiling\Resource;
@@ -12,13 +13,13 @@ use Codememory\Routing\Router;
 use PDOStatement;
 
 /**
- * Class Query
+ * Class Executor
  *
  * @package Codememory\Components\Database\QueryBuilder
  *
  * @author  Codememory
  */
-class Query
+class Executor implements ExecutorInterface
 {
 
     /**
@@ -44,10 +45,7 @@ class Query
     }
 
     /**
-     * @param string $query
-     * @param array  $parameters
-     *
-     * @return bool|PDOStatement
+     * @inheritDoc
      * @throws BuilderNotCurrentSectionException
      */
     public function execute(string $query, array $parameters = []): bool|PDOStatement
@@ -77,7 +75,7 @@ class Query
 
         $duration = round((microtime(true) - $microTime) * 1000);
         $currentRoute = Router::getCurrentRoute();
-        
+
         $databaseBuilder = new DatabaseBuilder();
 
         if (null !== $currentRoute) {

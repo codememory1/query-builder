@@ -4,6 +4,7 @@ namespace Codememory\Components\Database\QueryBuilder;
 
 use Codememory\Components\Database\Connection\Interfaces\ConnectorInterface;
 use Codememory\Components\Database\QueryBuilder\Exceptions\StatementNotSelectedException;
+use Codememory\Components\Database\QueryBuilder\Interfaces\ExecutorInterface;
 use Codememory\Components\Database\Schema\Interfaces\ExpressionInterface;
 use Codememory\Components\Database\Schema\Interfaces\JoinInterface;
 use Codememory\Components\Database\Schema\Interfaces\StatementInterface;
@@ -11,8 +12,11 @@ use Codememory\Components\Database\Schema\Schema;
 use Codememory\Components\Database\Schema\StatementComponents\Expression;
 use Codememory\Components\Database\Schema\StatementComponents\Join;
 use Codememory\Components\Database\Schema\Statements\Manipulation\Delete;
+use Codememory\Components\Database\Schema\Statements\Transaction\StartTransaction;
+use Codememory\Support\ConvertType;
 use Codememory\Support\Str;
 use JetBrains\PhpStorm\Pure;
+use PDO;
 
 /**
  * Class QueryBuilder
@@ -30,14 +34,39 @@ class QueryBuilder
     protected ConnectorInterface $connector;
 
     /**
+     * @var object
+     */
+    protected object $qbCreator;
+
+    /**
+     * @var Executor
+     */
+    protected Executor $executor;
+
+    /**
      * @var Schema
      */
     protected Schema $schema;
 
     /**
+     * @var ConvertType
+     */
+    protected ConvertType $convertType;
+
+    /**
      * @var StatementInterface|null
      */
     protected ?StatementInterface $statement = null;
+
+    /**
+     * @var string|null
+     */
+    protected ?string $sql = null;
+
+    /**
+     * @var array
+     */
+    protected array $parameters = [];
 
     /**
      * @var ExpressionInterface|null
@@ -51,13 +80,18 @@ class QueryBuilder
 
     /**
      * @param ConnectorInterface $connector
+     * @param object             $queryBuilderCreator
      */
     #[Pure]
-    public function __construct(ConnectorInterface $connector)
+    public function __construct(ConnectorInterface $connector, object $queryBuilderCreator)
     {
 
         $this->connector = $connector;
+        $this->qbCreator = $queryBuilderCreator;
+
+        $this->executor = new Executor($connector, $queryBuilderCreator);
         $this->schema = new Schema();
+        $this->convertType = new ConvertType();
 
     }
 
@@ -367,10 +401,10 @@ class QueryBuilder
         $conditions = [];
 
         foreach ($columns as $index => $columnName) {
-            $conditions[] = $this->expression->condition($columnName, '=', $values[$index] ?: '');
+            $conditions[] = $this->expression()->condition($columnName, '=', $values[$index] ?: '');
         }
 
-        $this->where($this->expression()->$conditionalOperatorMethod($conditions));
+        $this->where($this->expression()->$conditionalOperatorMethod(...$conditions));
 
         return $this;
 
@@ -389,6 +423,23 @@ class QueryBuilder
         $order = $this->getStatement()->getOrder($columns, $types);
 
         $this->getStatement()->orderBy($order);
+
+        return $this;
+
+    }
+
+    /**
+     * @param string ...$columns
+     *
+     * @return $this
+     * @throws StatementNotSelectedException
+     */
+    public function group(string ...$columns): static
+    {
+
+        $group = $this->getStatement()->getGroup()->columns(...$columns);
+
+        $this->getStatement()->group($group);
 
         return $this;
 
@@ -485,7 +536,7 @@ class QueryBuilder
 
     }
 
-    /**
+    /**$parameters
      * @param array $columns
      *
      * @return string
@@ -498,10 +549,104 @@ class QueryBuilder
     }
 
     /**
+     * @param string           $name
+     * @param float|int|string $value
+     *
+     * @return $this
+     */
+    public function setVariable(string $name, float|int|string $value): static
+    {
+
+        $sql = sprintf('SET @%s = \'%s\'', $name, $value);
+
+        $this->connector->getConnection()->query($sql);
+
+        return $this;
+
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return string|int|bool|float|null
+     */
+    public function getVariable(string $name): string|int|bool|null|float
+    {
+
+        $variable = $this->connector->getConnection()
+            ->query(sprintf('SELECT @%s', $name))
+            ->fetchAll(PDO::FETCH_COLUMN);
+
+        return [] !== $variable ? $this->convertType->auto($variable[0]) : false;
+
+    }
+
+    /**
+     * @param callable $callback
+     *
+     * @return $this
+     */
+    public function beginTransaction(callable $callback): static
+    {
+
+        $transaction = new StartTransaction();
+
+        $transaction->start();
+
+        call_user_func($callback, $transaction);
+
+        $this->statement = $transaction;
+
+        return $this;
+
+    }
+
+    /**
+     * @param string $name
+     * @param string $value
+     *
+     * @return $this
+     */
+    public function setParameter(string $name, string $value): static
+    {
+
+        $this->parameters[$name] = $value;
+
+        return $this;
+
+    }
+
+    /**
+     * @param array $parameters
+     *
+     * @return $this
+     */
+    public function setParameters(array $parameters): static
+    {
+
+        foreach ($parameters as $name => $value) {
+            $this->setParameter((string) $name, (string) $value);
+        }
+
+        return $this;
+
+    }
+
+    /**
+     * @return array
+     */
+    public function getParameters(): array
+    {
+
+        return $this->parameters;
+
+    }
+
+    /**
      * @return StatementInterface
      * @throws StatementNotSelectedException
      */
-    protected function getStatement(): StatementInterface
+    public function getStatement(): StatementInterface
     {
 
         if (null === $this->statement) {
@@ -509,6 +654,16 @@ class QueryBuilder
         }
 
         return $this->statement;
+
+    }
+
+    /**
+     * @return ExecutorInterface
+     */
+    public function getExecutor(): ExecutorInterface
+    {
+
+        return $this->executor;
 
     }
 

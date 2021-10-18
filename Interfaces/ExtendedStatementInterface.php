@@ -3,6 +3,7 @@
 namespace Codememory\Components\Database\QueryBuilder\Interfaces;
 
 use Codememory\Components\Database\Schema\Interfaces\ExpressionInterface;
+use Codememory\Components\Database\Schema\Interfaces\GroupInterface;
 use Codememory\Components\Database\Schema\Interfaces\JoinInterface;
 use Codememory\Components\Database\Schema\Interfaces\OrderInterface;
 use Codememory\Components\Database\Schema\Interfaces\StatementInterface;
@@ -132,5 +133,15 @@ interface ExtendedStatementInterface extends StatementInterface
      * @return void
      */
     public function join(JoinInterface $join): void;
+
+    /**
+     * @return GroupInterface
+     */
+    public function getGroup(): GroupInterface;
+
+    /**
+     * @param GroupInterface $group
+     */
+    public function group(GroupInterface $group): void;
 
 }

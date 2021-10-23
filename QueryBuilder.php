@@ -10,7 +10,9 @@ use Codememory\Components\Database\Schema\Interfaces\JoinInterface;
 use Codememory\Components\Database\Schema\Interfaces\StatementInterface;
 use Codememory\Components\Database\Schema\Schema;
 use Codememory\Components\Database\Schema\StatementComponents\Expression;
+use Codememory\Components\Database\Schema\StatementComponents\Group;
 use Codememory\Components\Database\Schema\StatementComponents\Join;
+use Codememory\Components\Database\Schema\StatementComponents\Order;
 use Codememory\Components\Database\Schema\Statements\Manipulation\Delete;
 use Codememory\Components\Database\Schema\Statements\Transaction\StartTransaction;
 use Codememory\Support\ConvertType;
@@ -420,7 +422,9 @@ class QueryBuilder
     public function order(array|string $columns, array|string $types = 'asc'): static
     {
 
-        $order = $this->getStatement()->getOrder($columns, $types);
+        $order = new Order();
+
+        $order->columns($columns, $types);
 
         $this->getStatement()->orderBy($order);
 
@@ -437,7 +441,9 @@ class QueryBuilder
     public function group(string ...$columns): static
     {
 
-        $group = $this->getStatement()->getGroup()->columns(...$columns);
+        $group = new Group();
+
+        $group->columns(...$columns);
 
         $this->getStatement()->group($group);
 
@@ -533,6 +539,25 @@ class QueryBuilder
     {
 
         return $this->getJoin()->on($expression);
+
+    }
+
+    /**
+     * @param string $first
+     * @param string $second
+     *
+     * @return $this
+     */
+    public function joinComparison(string $first, string $second): static
+    {
+
+        $this->onJoin(
+            $this->expression()->exprAnd(
+                $this->expression()->condition($first, '=', $second)
+            )
+        );
+
+        return $this;
 
     }
 

@@ -668,6 +668,19 @@ class QueryBuilder
     }
 
     /**
+     * @throws StatementNotSelectedException
+     */
+    public function execute(): void
+    {
+
+        $this->getExecutor()->execute(
+            $this->getStatement()->getQuery(),
+            $this->getParameters()
+        );
+
+    }
+
+    /**
      * @return JoinInterface
      */
     protected function getJoin(): JoinInterface

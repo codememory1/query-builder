@@ -546,18 +546,16 @@ class QueryBuilder
      * @param string $first
      * @param string $second
      *
-     * @return $this
+     * @return string
      */
-    public function joinComparison(string $first, string $second): static
+    public function joinComparison(string $first, string $second): string
     {
 
-        $this->onJoin(
+        return $this->onJoin(
             $this->expression()->exprAnd(
                 $this->expression()->condition($first, '=', $second)
             )
         );
-
-        return $this;
 
     }
 

@@ -71,16 +71,6 @@ class QueryBuilder
     protected array $parameters = [];
 
     /**
-     * @var ExpressionInterface|null
-     */
-    private ?ExpressionInterface $expression = null;
-
-    /**
-     * @var JoinInterface|null
-     */
-    private ?JoinInterface $join = null;
-
-    /**
      * @param ConnectorInterface $connector
      * @param string             $queryBuilderCreator
      */
@@ -359,14 +349,11 @@ class QueryBuilder
     /**
      * @return ExpressionInterface
      */
+    #[Pure]
     public function expression(): ExpressionInterface
     {
 
-        if ($this->expression instanceof ExpressionInterface) {
-            return $this->expression;
-        }
-
-        return $this->expression = new Expression();
+        return new Expression();
 
     }
 
@@ -551,9 +538,11 @@ class QueryBuilder
     public function joinComparison(string $first, string $second): string
     {
 
+        $expression = $this->expression();
+
         return $this->onJoin(
-            $this->expression()->exprAnd(
-                $this->expression()->condition($first, '=', $second)
+            $expression->exprAnd(
+                $expression->condition($first, '=', $second)
             )
         );
 
@@ -706,14 +695,11 @@ class QueryBuilder
     /**
      * @return JoinInterface
      */
+    #[Pure]
     protected function getJoin(): JoinInterface
     {
 
-        if ($this->join instanceof JoinInterface) {
-            return $this->join;
-        }
-
-        return $this->join = new Join();
+        return new Join();
 
     }
 
